@@ -22,6 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
       RoundedLoadingButtonController();
   final RoundedLoadingButtonController facebookController =
       RoundedLoadingButtonController();
+  final RoundedLoadingButtonController twitterController =
+      RoundedLoadingButtonController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // facebook ligin button
+                  // facebook login button
                   RoundedLoadingButton(
                     controller: facebookController,
                     onPressed: () {
@@ -132,7 +134,39 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                  )
+                  ),
+                  const SizedBox(height: 10),
+                  // twitter login button
+                  RoundedLoadingButton(
+                    controller: twitterController,
+                    onPressed: () {
+                      handleTwitterAuth();
+                    },
+                    successColor: Colors.lightBlueAccent,
+                    color: Colors.lightBlueAccent,
+                    width: MediaQuery.of(context).size.width * 0.80,
+                    elevation: 0,
+                    borderRadius: 25,
+                    child: Wrap(
+                      children: const [
+                        Icon(
+                          FontAwesomeIcons.twitter,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text(
+                          "Sign in with Twitter",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               )
             ],
@@ -189,7 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // handling facebookauthentication
+  // handling facebookAuthentication
   Future handleFacebookAuth() async {
     final sp = context.read<SignInProvider>();
     final ip = context.read<InternetProvider>();
@@ -225,6 +259,53 @@ class _LoginScreenState extends State<LoginScreen> {
                 sp.saveDataToSharedPreferences().then((value) {
                   sp.setSignIn().then((value) {
                     facebookController.success();
+                    handleAfterSignIn();
+                  });
+                });
+              });
+            }
+          });
+        }
+      });
+    }
+  }
+
+  //handling twitter Auth
+  Future handleTwitterAuth() async {
+    final sp = context.read<SignInProvider>();
+    final ip = context.read<InternetProvider>();
+    await ip.checkInternerConnection();
+
+    if (ip.hasInterner == false) {
+      openSnackbar(
+        context,
+        "Check Your Interner Connection",
+      );
+      twitterController.reset();
+    } else {
+      await sp.signInWithTwitter().then((value) {
+        if (sp.hasError == true) {
+          openSnackbar(context, sp.errorCode.toString());
+          twitterController.reset();
+        } else {
+          // checking whether user exists or not
+          sp.chckUserExists().then((value) async {
+            if (value == true) {
+              // user exists
+              await sp.getUserDataFromFirestore(sp.uid).then((value) {
+                sp.saveDataToSharedPreferences().then((value) {
+                  sp.setSignIn().then((value) {
+                    twitterController.success();
+                    handleAfterSignIn();
+                  });
+                });
+              });
+            } else {
+              // user does not exist
+              sp.saveDataToFireStore().then((value) {
+                sp.saveDataToSharedPreferences().then((value) {
+                  sp.setSignIn().then((value) {
+                    googleController.success();
                     handleAfterSignIn();
                   });
                 });
