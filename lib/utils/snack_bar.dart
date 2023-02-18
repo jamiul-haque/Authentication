@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-void openSnackbar(context, snackMessage) {
+void openSnackbar(context, snackMessage, MaterialColor red) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     backgroundColor: Colors.red,
     action: SnackBarAction(label: "OK", onPressed: () {}),

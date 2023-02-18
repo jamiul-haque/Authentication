@@ -1,6 +1,7 @@
 import 'package:authentication/provider/internet_provider.dart';
 import 'package:authentication/provider/sign_in_provider.dart';
 import 'package:authentication/screens/home_screen.dart';
+import 'package:authentication/screens/phone_auth_screen.dart';
 import 'package:authentication/utils/config.dart';
 import 'package:authentication/utils/next_screen.dart';
 import 'package:authentication/utils/snack_bar.dart';
@@ -23,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final RoundedLoadingButtonController facebookController =
       RoundedLoadingButtonController();
   final RoundedLoadingButtonController twitterController =
+      RoundedLoadingButtonController();
+  final RoundedLoadingButtonController phoneController =
       RoundedLoadingButtonController();
   @override
   Widget build(BuildContext context) {
@@ -167,6 +170,39 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  // phoneAuth loading button
+                  RoundedLoadingButton(
+                    controller: phoneController,
+                    onPressed: () {
+                      nextScreenReplace(context, const PhoneAuthScreen());
+                      phoneController.reset();
+                    },
+                    successColor: Colors.black,
+                    color: Colors.black,
+                    width: MediaQuery.of(context).size.width * 0.80,
+                    elevation: 0,
+                    borderRadius: 25,
+                    child: Wrap(
+                      children: const [
+                        Icon(
+                          FontAwesomeIcons.phone,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Text(
+                          "Sign in with Phone Number",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               )
             ],
@@ -183,15 +219,12 @@ class _LoginScreenState extends State<LoginScreen> {
     await ip.checkInternerConnection();
 
     if (ip.hasInterner == false) {
-      openSnackbar(
-        context,
-        "Check Your Interner Connection",
-      );
+      openSnackbar(context, "Check Your Interner Connection", Colors.red);
       googleController.reset();
     } else {
       await sp.signInWithGoogle().then((value) {
         if (sp.hasError == true) {
-          openSnackbar(context, sp.errorCode.toString());
+          openSnackbar(context, sp.errorCode.toString(), Colors.red);
           googleController.reset();
         } else {
           // checking whether user exists or not
@@ -230,15 +263,12 @@ class _LoginScreenState extends State<LoginScreen> {
     await ip.checkInternerConnection();
 
     if (ip.hasInterner == false) {
-      openSnackbar(
-        context,
-        "Check Your Interner Connection",
-      );
+      openSnackbar(context, "Check Your Interner Connection", Colors.red);
       facebookController.reset();
     } else {
       await sp.signInWithFacebook().then((value) {
         if (sp.hasError == true) {
-          openSnackbar(context, sp.errorCode.toString());
+          openSnackbar(context, sp.errorCode.toString(), Colors.red);
           facebookController.reset();
         } else {
           // checking whether user exists or not
@@ -277,15 +307,12 @@ class _LoginScreenState extends State<LoginScreen> {
     await ip.checkInternerConnection();
 
     if (ip.hasInterner == false) {
-      openSnackbar(
-        context,
-        "Check Your Interner Connection",
-      );
+      openSnackbar(context, "Check Your Interner Connection", Colors.red);
       twitterController.reset();
     } else {
       await sp.signInWithTwitter().then((value) {
         if (sp.hasError == true) {
-          openSnackbar(context, sp.errorCode.toString());
+          openSnackbar(context, sp.errorCode.toString(), Colors.red);
           twitterController.reset();
         } else {
           // checking whether user exists or not
